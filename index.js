@@ -10,7 +10,7 @@ const boundsOfNYC = {
   east: -73.56091
 }
 
-const selectedPropertyBBL = null
+let selectedPropertyBBL = null
 
 // Determine the map's starting position and zoom level from the URL's hash, or fallback to a default location and zoom level
 function getMapParametersFromHash () {
@@ -72,6 +72,8 @@ async function initMap () {
   // Register the function to update the pane showing property details upon clicking on a property on the map
   datasetLayer.addListener('click', handlePropertyClickOnMap)
 
+  map.addListener('click', handleClickOnMap)
+
   // Reggister the function to update the URL hash upon adjusting the map position or zoom
   map.addListener('idle', updateUrlHash)
 }
@@ -80,15 +82,28 @@ const updateUrlHash = function () {
 // Get the map position
   const center = map.getCenter()
   const zoom = map.getZoom()
+
+  let bblHashComponent = ''
+  if (selectedPropertyBBL !== null) {
+    bblHashComponent = `&bbl=${selectedPropertyBBL}`
+  }
   // Update the URL hash with the new center
-  window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}`
+  window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}` + bblHashComponent
+}
+
+const handleClickOnMap = function (e) {
+  selectedPropertyBBL = null
+  const propertyDetailsDrawerHTML = ''
+  document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
+  updateUrlHash()
 }
 
 const handlePropertyClickOnMap = function (e) {
-  console.log(e)
   if (e.features) {
     const clickedPropertyAttributes = e.features[0].datasetAttributes
     console.log(clickedPropertyAttributes)
+
+    selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
     const propertyDetailsDrawerHTML = `<h2>${clickedPropertyAttributes.Address}</h2>
       <p>Owner: ${clickedPropertyAttributes.OwnerName}</p>
@@ -98,6 +113,8 @@ const handlePropertyClickOnMap = function (e) {
       `
 
     document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
+
+    updateUrlHash()
   }
 }
 
