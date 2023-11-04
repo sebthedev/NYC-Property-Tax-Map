@@ -14,10 +14,8 @@ body {
     height: 100%;
     margin: 0;
     padding: 0;
-}
-
-.navbar {
-    /* height: 50px; */
+    background-color: #f5f5f5;
+    color: #404040;
 }
 
 #flex-height {
@@ -29,4 +27,16 @@ body {
 
 #map {
     flex-grow: 1;
+}
+
+#logo {
+    max-height: 50px;
+    max-width: 50px;
+    aspect-ratio: 1 / 1;
+}
+
+h1 {
+    font-family: "SF Pro Display", -apple-system, "system-ui", Inter;
+    font-weight: 900;
+    font-size: clamp(1rem, calc(1rem + 2vw), 30px);
 }

@@ -17,7 +17,7 @@ function getMapParametersFromHash () {
   const defaults = {
     lat: 40.76882764497733,
     lng: -73.96813178859476,
-    zoom: 13,
+    zoom: 16,
     selectedPropertyBBL: null
   }
 
@@ -60,7 +60,8 @@ async function initMap () {
     },
     mapId,
     greedy: 'greedy',
-    streetViewControl: false
+    streetViewControl: false,
+    mapTypeControl: false
   })
 
   // Attach the property tax dataset to the map
