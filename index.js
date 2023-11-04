@@ -12,6 +12,7 @@ const boundsOfNYC = {
 }
 
 let selectedPropertyBBL = null
+let zoomLevelAtWhichStylesMostRecentlyApplied = null
 
 // Determine the map's starting position and zoom level from the URL's hash, or fallback to a default location and zoom level
 function getMapParametersFromHash () {
@@ -77,9 +78,10 @@ async function initMap () {
 
   map.addListener('click', handleClickOnMap)
 
-  // Reggister the function to update the URL hash upon adjusting the map position or zoom
+  // Register the function to update the URL hash upon adjusting the map position or zoom
   map.addListener('idle', updateUrlHash)
 
+  // Register the function to recompute property styles when the zoom level changes
   map.addListener('zoom_changed', handleZoomChanged)
 }
 
@@ -96,9 +98,14 @@ const updateUrlHash = function () {
   window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}` + bblHashComponent
 }
 
+const zoomLevelDeltaAtWhichToUpdateStyles = 0.5
 const handleZoomChanged = function (e) {
-  console.log('zoomChanged')
-  datasetLayer.style = setOnMapPropertyStyle
+  const currentZoomLevel = map.getZoom()
+
+  // Only update styles when the zoom has changed by more than zoomLevelDeltaAtWhichToUpdateStyles since the styles were most recently updated
+  if (currentZoomLevel > zoomLevelAtWhichStylesMostRecentlyApplied + zoomLevelDeltaAtWhichToUpdateStyles || currentZoomLevel < zoomLevelAtWhichStylesMostRecentlyApplied - zoomLevelDeltaAtWhichToUpdateStyles) {
+    datasetLayer.style = setOnMapPropertyStyle
+  }
 }
 
 const handleClickOnMap = function (e) {
@@ -109,6 +116,7 @@ const handleClickOnMap = function (e) {
   updateUrlHash()
 }
 
+const departmentOfFinanceUrlTemplate = 'https://a836-pts-access.nyc.gov/care/datalets/datalet.aspx?mode=profileall2&UseSearch=no&pin='
 const handlePropertyClickOnMap = function (e) {
   if (e.features) {
     const clickedPropertyAttributes = e.features[0].datasetAttributes
@@ -116,11 +124,34 @@ const handlePropertyClickOnMap = function (e) {
 
     selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
-    const propertyDetailsDrawerHTML = `<h3>${clickedPropertyAttributes.Address}</h3>
+    const propertyDetailsDrawerHTML2 = `<h3>${clickedPropertyAttributes.Address}</h3>
       <p>Owner: ${clickedPropertyAttributes.OwnerName}</p>
       <p>Market Value: ${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</p>
       <p>Annual Property Tax Bill: ${formatCurrency(clickedPropertyAttributes.TaxBill)}</p>
       <p>Effective Tax Rate: ${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></p>
+      <p><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View on NYC Department of Finance website</a></p>
+      `
+
+    const propertyDetailsAttributeNameClass = 'col-5 my-2 lh-1'
+    const propertyDetailsAttributeValueClass = 'col-7 my-2 lh-1'
+    const propertyDetailsDrawerHTML = `
+    <dl class="row small"><dt class="${propertyDetailsAttributeNameClass}">Address</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.Address}</dd>
+    
+    <dt class="${propertyDetailsAttributeNameClass}">Owner</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.OwnerName}</dd>
+
+    <dt class="${propertyDetailsAttributeNameClass}">Market Value</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</dd>
+
+    <dt class="${propertyDetailsAttributeNameClass}">Annual Property Tax&nbsp;Bill</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.TaxBill)}</dd>
+
+    <dt class="${propertyDetailsAttributeNameClass}">Effective Tax Rate</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></dd>
+
+    <dd class="col"><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View on NYC Department of Finance website</a></dd>
+      </dl>
       `
 
     document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
@@ -142,19 +173,24 @@ function setOnMapPropertyStyle (params) {
   // Determine pointRadius based on zoom level
   const zoomLevel = map.getZoom()
   let pointRadius = 1
-  if (zoomLevel <= 15) {
+  if (zoomLevel <= 15.5) {
     pointRadius = 0.5
   } else if (zoomLevel <= 16) {
     pointRadius = 1
   } else if (zoomLevel <= 17) {
     pointRadius = 1.5
   } else if (zoomLevel <= 18) {
+    pointRadius = 3
+  } else if (zoomLevel <= 18.5) {
     pointRadius = 5
   } else if (zoomLevel <= 19) {
     pointRadius = 10
   } else {
     pointRadius = 15
   }
+
+  // Update tracker of the zoom level at which styles were most recently applied, so that we can
+  zoomLevelAtWhichStylesMostRecentlyApplied = zoomLevel
 
   return {
     strokeColor: thisPropertyColor,
@@ -218,6 +254,10 @@ const formatCurrency = function (value) {
 
 // Format a percentage string with two deximal places
 function formatPercentage (value) {
+  if (isNaN(value)) {
+    return '0.0%'
+  }
+
   return new Intl.NumberFormat('en-US', {
     style: 'percent',
     maximumFractionDigits: 2 // Two decimal places
