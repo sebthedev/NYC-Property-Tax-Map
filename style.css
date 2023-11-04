@@ -4,6 +4,7 @@
  */
 #map {
     /* height: 80%; */
+    min-height: 100px;
 }
 
 /* 
@@ -30,8 +31,8 @@ body {
 }
 
 #logo {
-    max-height: 50px;
-    max-width: 50px;
+    max-height: 40px;
+    max-width: 40px;
     aspect-ratio: 1 / 1;
 }
 
@@ -39,4 +40,8 @@ h1 {
     font-family: "SF Pro Display", -apple-system, "system-ui", Inter;
     font-weight: 900;
     font-size: clamp(1rem, calc(1rem + 2vw), 30px);
+}
+
+a {
+    color: #3e4a9a;
 }

@@ -1,4 +1,5 @@
 let map
+let datasetLayer
 
 const mapId = '33d6428f2a3923ea'
 const datasetId = 'a8b90d7d-32b5-4caf-baa6-82afda6b280a'
@@ -61,11 +62,12 @@ async function initMap () {
     mapId,
     greedy: 'greedy',
     streetViewControl: false,
-    mapTypeControl: false
+    mapTypeControl: false,
+    fullscreenControl: false
   })
 
   // Attach the property tax dataset to the map
-  const datasetLayer = map.getDatasetFeatureLayer(datasetId)
+  datasetLayer = map.getDatasetFeatureLayer(datasetId)
 
   // Determine the style of each point in the dataset using the setOnMapPropertyStyle function
   datasetLayer.style = setOnMapPropertyStyle
@@ -77,6 +79,8 @@ async function initMap () {
 
   // Reggister the function to update the URL hash upon adjusting the map position or zoom
   map.addListener('idle', updateUrlHash)
+
+  map.addListener('zoom_changed', handleZoomChanged)
 }
 
 const updateUrlHash = function () {
@@ -92,9 +96,15 @@ const updateUrlHash = function () {
   window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}` + bblHashComponent
 }
 
+const handleZoomChanged = function (e) {
+  console.log('zoomChanged')
+  datasetLayer.style = setOnMapPropertyStyle
+}
+
 const handleClickOnMap = function (e) {
   selectedPropertyBBL = null
   const propertyDetailsDrawerHTML = ''
+  document.getElementById('nav-home-tab').click()
   document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
   updateUrlHash()
 }
@@ -106,14 +116,15 @@ const handlePropertyClickOnMap = function (e) {
 
     selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
-    const propertyDetailsDrawerHTML = `<h2>${clickedPropertyAttributes.Address}</h2>
+    const propertyDetailsDrawerHTML = `<h3>${clickedPropertyAttributes.Address}</h3>
       <p>Owner: ${clickedPropertyAttributes.OwnerName}</p>
       <p>Market Value: ${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</p>
       <p>Annual Property Tax Bill: ${formatCurrency(clickedPropertyAttributes.TaxBill)}</p>
-      <p>Effective Tax Rate: ${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)}</p>
+      <p>Effective Tax Rate: ${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></p>
       `
 
     document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
+    document.getElementById('nav-property-details-tab').click()
 
     updateUrlHash()
   }
@@ -122,12 +133,28 @@ const handlePropertyClickOnMap = function (e) {
 function setOnMapPropertyStyle (params) {
   // console.log('Attempting to setOnMapPropertyStyle')
   // Get the dataset feature, so we can work with all of its attributes.
+
   const datasetFeature = params.feature
 
-  // Perform interpolation of the color based on the property's effective tax rate
-  // const thisPropertyColor = interpolateColor(color1, color2, datasetFeature.datasetAttributes.EffectiveTaxRate, A, B)
+  // Determine color based on effective tax rate
   const thisPropertyColor = determineColorForEffectiveTaxRate(datasetFeature.datasetAttributes.EffectiveTaxRate)
-  // console.log(datasetFeature.datasetAttributes.EffectiveTaxRate, thisPropertyColor)
+
+  // Determine pointRadius based on zoom level
+  const zoomLevel = map.getZoom()
+  let pointRadius = 1
+  if (zoomLevel <= 15) {
+    pointRadius = 0.5
+  } else if (zoomLevel <= 16) {
+    pointRadius = 1
+  } else if (zoomLevel <= 17) {
+    pointRadius = 1.5
+  } else if (zoomLevel <= 18) {
+    pointRadius = 5
+  } else if (zoomLevel <= 19) {
+    pointRadius = 10
+  } else {
+    pointRadius = 15
+  }
 
   return {
     strokeColor: thisPropertyColor,
@@ -135,7 +162,7 @@ function setOnMapPropertyStyle (params) {
     strokeOpacity: 1,
     fillColor: thisPropertyColor,
     fillOpacity: 0.3,
-    pointRadius: 1
+    pointRadius
   }
 }
 
