@@ -219,16 +219,41 @@ function setOnMapPropertyStyle (params) {
 
 // }
 
+// Color scale from https://purple.vercel.app/#4/6/50/37/-65/108/20/14/E3A100/227/161/0
 const determineColorForEffectiveTaxRate = function (effectiveTaxRate) {
   if (isNaN(effectiveTaxRate) || effectiveTaxRate <= 0) {
     return '#000000'
-  } else if (effectiveTaxRate < 1 / 100) {
-    return '#00FF00'
-  } else if (effectiveTaxRate < 2 / 100) {
-    return '#0000FF'
-  } else {
-    return '#FF0000'
   }
+
+  if (effectiveTaxRate < 0.3 / 100) {
+    return '#137900'
+  }
+
+  if (effectiveTaxRate < 0.7 / 100) {
+    return '#449500'
+  }
+
+  if (effectiveTaxRate < 1 / 100) {
+    return '#83B000'
+  }
+
+  if (effectiveTaxRate < 1.5 / 100) {
+    return '#CAC600'
+  }
+
+  if (effectiveTaxRate < 2.5 / 100) {
+    return '#E3A100'
+  }
+
+  if (effectiveTaxRate < 3.5 / 100) {
+    return '#E86610'
+  }
+
+  if (effectiveTaxRate < 4.5 / 100) {
+    return '#ED3020'
+  }
+
+  return '#F12F4D'
 }
 
 // Create the map
