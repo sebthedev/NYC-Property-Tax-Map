@@ -45,3 +45,20 @@ h1 {
 a {
     color: #3e4a9a;
 }
+
+.nav-tabs .nav-link {
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    color: #404040
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #eee;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    box-shadow: inset 0 -2px 0 #3E4A9A;
+    color: #3E4A9A;
+}

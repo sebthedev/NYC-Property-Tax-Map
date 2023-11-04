@@ -124,14 +124,6 @@ const handlePropertyClickOnMap = function (e) {
 
     selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
-    const propertyDetailsDrawerHTML2 = `<h3>${clickedPropertyAttributes.Address}</h3>
-      <p>Owner: ${clickedPropertyAttributes.OwnerName}</p>
-      <p>Market Value: ${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</p>
-      <p>Annual Property Tax Bill: ${formatCurrency(clickedPropertyAttributes.TaxBill)}</p>
-      <p>Effective Tax Rate: ${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></p>
-      <p><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View on NYC Department of Finance website</a></p>
-      `
-
     const propertyDetailsAttributeNameClass = 'col-5 my-2 lh-1'
     const propertyDetailsAttributeValueClass = 'col-7 my-2 lh-1'
     const propertyDetailsDrawerHTML = `
@@ -150,7 +142,7 @@ const handlePropertyClickOnMap = function (e) {
     <dt class="${propertyDetailsAttributeNameClass}">Effective Tax Rate</dt>
     <dd class="${propertyDetailsAttributeValueClass}">${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></dd>
 
-    <dd class="col"><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View on NYC Department of Finance website</a></dd>
+    <dd class="col"><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View property on NYC Department of Finance website</a></dd>
       </dl>
       `
 
