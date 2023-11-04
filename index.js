@@ -155,8 +155,8 @@ const handlePropertyClickOnMap = function (e) {
 
 function setOnMapPropertyStyle (params) {
   // console.log('Attempting to setOnMapPropertyStyle')
-  // Get the dataset feature, so we can work with all of its attributes.
 
+  // Get the data for this property, so we can work with all of its attributes
   const datasetFeature = params.feature
 
   // Determine color based on effective tax rate
