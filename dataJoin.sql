@@ -72,7 +72,7 @@ IF
     NULL
   END
     ) AS BoroughBlockLot,
-  ARRAY_AGG(pvad_computed.BoroughBlockLot
+  STRING_AGG(pvad_computed.BoroughBlockLot, ", "
   ORDER BY
     pvad_computed.BoroughBlockLot ASC) AS ComponentPropertyBoroughBlockLots,
   ANY_VALUE(pvad_computed.CondoNumber) AS CondoNumber,
