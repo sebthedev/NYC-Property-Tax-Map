@@ -2,8 +2,8 @@
 
 
 ## Query over "Property Valuation and Assessment Data Tax Classes 1,2,3,4"
-SELECT parid, condo_number, curtaxclass, curmkttot, curtxbtot, curtxbextot WHERE year = "2024" AND period = "3" LIMIT 10000000
-https://data.cityofnewyork.us/resource/8y4t-faws.csv?$query=SELECT%20parid%2C%20condo_number%2C%20curtaxclass%2C%20curmkttot%2C%20curtxbtot%2C%20curtxbextot%20WHERE%20year%20%3D%20%222024%22%20AND%20period%20%3D%20%223%22%20LIMIT%2010000000
+SELECT parid, condo_number, curtaxclass, curmkttot, curtxbtot, curtxbextot, bldg_class, owner WHERE year = "2024" AND period = "3" LIMIT 10000000
+https://data.cityofnewyork.us/resource/8y4t-faws.csv?$query=SELECT%20parid%2C%20condo_number%2C%20curtaxclass%2C%20curmkttot%2C%20curtxbtot%2C%20curtxbextot%2C%20bldg_class%2C%20owner%20WHERE%20year%20%3D%20%222024%22%20AND%20period%20%3D%20%223%22%20LIMIT%2010000000
 
 
 
@@ -18,8 +18,8 @@ SELECT year, period GROUP BY year, period ORDER BY year, period desc
 https://data.cityofnewyork.us/resource/8y4t-faws.csv?$query=SELECT%20year%2C%20period%20GROUP%20BY%20year%2C%20period%20ORDER%20BY%20year%2C%20period%20desc
 
 ### Query over PLUTO
-SELECT bbl, latitude, longitude, borough, council, cd, zipcode, address, ownername, yearbuilt, unitsres, assesstot, exempttot LIMIT 10000000
-https://data.cityofnewyork.us/resource/64uk-42ks.csv?$query=SELECT%20bbl%2C%20latitude%2C%20longitude%2C%20borough%2C%20council%2C%20cd%2C%20zipcode%2C%20address%2C%20ownername%2C%20yearbuilt%2C%20unitsres%2C%20assesstot%2C%20exempttot%20LIMIT%2010000000
+SELECT bbl, latitude, longitude, borough, council, cd, zipcode, address, ownername, yearbuilt, unitsres, assesstot, exempttot, condono LIMIT 10000000
+https://data.cityofnewyork.us/resource/64uk-42ks.csv?$query=SELECT%20bbl%2C%20latitude%2C%20longitude%2C%20borough%2C%20council%2C%20cd%2C%20zipcode%2C%20address%2C%20ownername%2C%20yearbuilt%2C%20unitsres%2C%20assesstot%2C%20exempttot%2C%20condono%20LIMIT%2010000000
 
 
 
