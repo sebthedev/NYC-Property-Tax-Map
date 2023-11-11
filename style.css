@@ -62,3 +62,47 @@ a {
     box-shadow: inset 0 -2px 0 #3E4A9A;
     color: #3E4A9A;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+#legend {
+    font-size: 10px;
+    width: 200px;
+    padding: 5px;
+    background: white;
+    border: 1px solid #404040;
+    color: #404040;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+    opacity: 0;
+}
+
+.animate-fade-in {
+    animation: fadeIn 1s ease-in-out forwards;
+    animation-delay: 1s;
+}
+
+#color-scale {
+    width: 100%;
+    background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #f69d3c);
+}
+
+#legend .row {
+    margin-top: 2px;
+}
+
+.legend-scale-text {
+    width: auto;
+    padding: 0px 4px;
+    text-align: center;
+}

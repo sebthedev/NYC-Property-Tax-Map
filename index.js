@@ -44,7 +44,7 @@ function getMapParametersFromHash () {
 }
 
 async function initMap () {
-  const { Map } = await google.maps.importLibrary('maps')
+  const { Map } = await window.google.maps.importLibrary('maps')
 
   const mapParameters = getMapParametersFromHash()
 
@@ -83,6 +83,15 @@ async function initMap () {
 
   // Register the function to recompute property styles when the zoom level changes
   map.addListener('zoom_changed', handleZoomChanged)
+
+  // Attach the map legend
+  const legend = document.getElementById('legend')
+  map.controls[window.google.maps.ControlPosition.BOTTOM_CENTER].push(legend)
+
+  document.getElementById('legend').classList.add('animate-fade-in')
+
+  // Initialize the current zoom level
+  currentZoomLevel = map.getZoom()
 }
 
 const updateUrlHash = function () {
@@ -98,12 +107,16 @@ const updateUrlHash = function () {
   window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}` + bblHashComponent
 }
 
+// When the zoom level changes significantly, re-compute the property styles so that we can resize the property bubbles to be larger at deeper zoom levels
 const zoomLevelDeltaAtWhichToUpdateStyles = 0.5
+let currentZoomLevel = null
 const handleZoomChanged = function (e) {
-  const currentZoomLevel = map.getZoom()
+  currentZoomLevel = map.getZoom()
 
   // Only update styles when the zoom has changed by more than zoomLevelDeltaAtWhichToUpdateStyles since the styles were most recently updated
   if (currentZoomLevel > zoomLevelAtWhichStylesMostRecentlyApplied + zoomLevelDeltaAtWhichToUpdateStyles || currentZoomLevel < zoomLevelAtWhichStylesMostRecentlyApplied - zoomLevelDeltaAtWhichToUpdateStyles) {
+    // Update the tracker of the zoom level at which the styles were most recently updated
+    zoomLevelAtWhichStylesMostRecentlyApplied = currentZoomLevel
     datasetLayer.style = setOnMapPropertyStyle
   }
 }
@@ -117,6 +130,12 @@ const handleClickOnMap = function (e) {
 }
 
 const departmentOfFinanceUrlTemplate = 'https://a836-pts-access.nyc.gov/care/datalets/datalet.aspx?mode=profileall2&UseSearch=no&pin='
+const taxClassDescriptions = {
+  1: 'Residential with up to three units',
+  2: 'Residential with four or more units',
+  3: 'Utilities',
+  4: 'Commercial or industrial'
+}
 const handlePropertyClickOnMap = function (e) {
   if (e.features) {
     const clickedPropertyAttributes = e.features[0].datasetAttributes
@@ -124,8 +143,8 @@ const handlePropertyClickOnMap = function (e) {
 
     selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
-    const propertyDetailsAttributeNameClass = 'col-5 my-2 lh-1'
-    const propertyDetailsAttributeValueClass = 'col-7 my-2 lh-1'
+    const propertyDetailsAttributeNameClass = 'col-5 my-1 my-md-2 lh-1'
+    const propertyDetailsAttributeValueClass = 'col-7 my-1 my-md-2 lh-1'
     const propertyDetailsDrawerHTML = `
     <dl class="row small"><dt class="${propertyDetailsAttributeNameClass}">Address</dt>
     <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.Address}</dd>
@@ -133,14 +152,17 @@ const handlePropertyClickOnMap = function (e) {
     <dt class="${propertyDetailsAttributeNameClass}">Owner</dt>
     <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.OwnerName}</dd>
 
+    <dt class="${propertyDetailsAttributeNameClass}">Tax Class</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${taxClassDescriptions[clickedPropertyAttributes.TaxClass]} <span class="text-muted">(Class&nbsp;${clickedPropertyAttributes.TaxClass})</span></dd>
+  
     <dt class="${propertyDetailsAttributeNameClass}">Market Value</dt>
     <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</dd>
 
-    <dt class="${propertyDetailsAttributeNameClass}">Annual Property Tax&nbsp;Bill</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.TaxBill)}</dd>
+    <dt class="${propertyDetailsAttributeNameClass}">Property Tax&nbsp;Bill</dt>
+    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.TaxBill)} <span class="text-muted">per year</span></dd>
 
     <dt class="${propertyDetailsAttributeNameClass}">Effective Tax Rate</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)} <span class="text-muted">of the property's value per year</span></dd>
+    <dd class="${propertyDetailsAttributeValueClass}"><span style="color: ${determineColorForEffectiveTaxRate(clickedPropertyAttributes.EffectiveTaxRate)};">${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)}</span> <span class="text-muted">of the property's value per year</span></dd>
 
     <dd class="col"><a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">View property on NYC Department of Finance website</a></dd>
       </dl>
@@ -153,36 +175,30 @@ const handlePropertyClickOnMap = function (e) {
   }
 }
 
+const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
 function setOnMapPropertyStyle (params) {
-  // console.log('Attempting to setOnMapPropertyStyle')
-
-  // Get the data for this property, so we can work with all of its attributes
-  const datasetFeature = params.feature
-
-  // Determine color based on effective tax rate
-  const thisPropertyColor = determineColorForEffectiveTaxRate(datasetFeature.datasetAttributes.EffectiveTaxRate)
+  // Determine the right color for this property, based on its effective tax rate
+  const thisPropertyColor = determineColorForEffectiveTaxRate(params.feature.datasetAttributes.EffectiveTaxRate)
 
   // Determine pointRadius based on zoom level
-  const zoomLevel = map.getZoom()
+  // const zoomLevel = map.getZoom()
   let pointRadius = 1
-  if (zoomLevel <= 15.5) {
+  if (currentZoomLevel <= 15.5) {
     pointRadius = 0.5
-  } else if (zoomLevel <= 16) {
+  } else if (currentZoomLevel <= 16) {
     pointRadius = 1
-  } else if (zoomLevel <= 17) {
+  } else if (currentZoomLevel <= 17) {
     pointRadius = 1.5
-  } else if (zoomLevel <= 18) {
+  } else if (currentZoomLevel <= 18) {
     pointRadius = 3
-  } else if (zoomLevel <= 18.5) {
+  } else if (currentZoomLevel <= 18.5) {
     pointRadius = 5
-  } else if (zoomLevel <= 19) {
+  } else if (currentZoomLevel <= 19) {
     pointRadius = 10
   } else {
     pointRadius = 15
   }
-
-  // Update tracker of the zoom level at which styles were most recently applied, so that we can
-  zoomLevelAtWhichStylesMostRecentlyApplied = zoomLevel
+  // if (isTouchscreen) { pointRadius = pointRadius * 2 }
 
   return {
     strokeColor: thisPropertyColor,
@@ -194,67 +210,51 @@ function setOnMapPropertyStyle (params) {
   }
 }
 
-// // Constants for property color interpolation
-// const color1 = '#FF0000' // Red
-// const color2 = '#00FF00' // Green
-// const r1 = parseInt(color1.substring(1, 3), 16)
-// const g1 = parseInt(color1.substring(3, 5), 16)
-// const b1 = parseInt(color1.substring(5, 7), 16)
-
-// const r2 = parseInt(color2.substring(1, 3), 16)
-// const g2 = parseInt(color2.substring(3, 5), 16)
-// const b2 = parseInt(color2.substring(5, 7), 16)
-// const A = 0
-// const B = 5 / 100
-
-// Interpolate the color for a property based on where value is in the domain A to B
-// function interpolateColor (color1, color2, value, A, B) {
-//   // const t = (value - A) / (B - A)
-
-//   // const r = Math.round(r1 + (r2 - r1) * t)
-//   // const g = Math.round(g1 + (g2 - g1) * t)
-//   // const b = Math.round(b1 + (b2 - b1) * t)
-
-//   // return '#' + (r << 16 | g << 8 | b).toString(16).padStart(6, '0')
-
-// }
-
 // Color scale from https://purple.vercel.app/#4/6/50/37/-65/108/20/14/E3A100/227/161/0
+const effectiveTaxRateToColorMap = [
+  [0, '#000000'],
+  [0.003, '#137900'],
+  [0.007, '#449500'],
+  [0.010, '#83B000'],
+  [0.015, '#CAC600'],
+  [0.025, '#E3A100'],
+  [0.035, '#E86610'],
+  [0.045, '#ED3020'],
+  [1.000, '#F12F4D']
+]
+const effectiveTopEndOfScale = 0.06
 const determineColorForEffectiveTaxRate = function (effectiveTaxRate) {
-  if (isNaN(effectiveTaxRate) || effectiveTaxRate <= 0) {
-    return '#000000'
+  if (isNaN(effectiveTaxRate)) {
+    return effectiveTaxRateToColorMap[0][1]
   }
 
-  if (effectiveTaxRate < 0.3 / 100) {
-    return '#137900'
+  for (let index = 0; index < effectiveTaxRateToColorMap.length; index++) {
+    const element = effectiveTaxRateToColorMap[index]
+    if (effectiveTaxRate <= element[0]) {
+      return element[1]
+    }
   }
 
-  if (effectiveTaxRate < 0.7 / 100) {
-    return '#449500'
-  }
-
-  if (effectiveTaxRate < 1 / 100) {
-    return '#83B000'
-  }
-
-  if (effectiveTaxRate < 1.5 / 100) {
-    return '#CAC600'
-  }
-
-  if (effectiveTaxRate < 2.5 / 100) {
-    return '#E3A100'
-  }
-
-  if (effectiveTaxRate < 3.5 / 100) {
-    return '#E86610'
-  }
-
-  if (effectiveTaxRate < 4.5 / 100) {
-    return '#ED3020'
-  }
-
-  return '#F12F4D'
+  return effectiveTaxRateToColorMap[0][1]
 }
+
+// Calculate and set a linear gradiaent representing the color scale for the map
+const calculateLinearGradientForColorScale = function () {
+  function createGradient (colorsMap, rangeMax) {
+    const gradientStops = colorsMap.map(([position, color]) => {
+      const percentage = Math.min((position / rangeMax) * 100, 100)
+      return `${color} ${percentage.toFixed(2)}%`
+    })
+
+    return `linear-gradient(90deg, ${gradientStops.join(', ')})`
+  }
+
+  const cssGradient = createGradient(effectiveTaxRateToColorMap, effectiveTopEndOfScale)
+  console.log(cssGradient)
+  const element = document.getElementById('color-scale')
+  element.style.background = cssGradient
+}
+calculateLinearGradientForColorScale()
 
 // Create the map
 initMap()

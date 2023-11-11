@@ -54,7 +54,7 @@
                         <button class="nav-link" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about" type="button" role="tab" aria-controls="nav-about" aria-selected="false">About</button>
                     </div>
                 </nav>
-                <div class="tab-content pt-1" id="nav-tabContent">
+                <div class="tab-content pt-2" id="nav-tabContent">
                     <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
                         <div class="row">
                             <div class="col-md-6">
@@ -64,14 +64,17 @@
                             </div>
                             <div class="col-md-6">
                                 <p>
-                                    This map shows the tax rates that are actually levied on each property in New York City, using data published by New York City's government Tap on a property to see how much tax it paid last year.
+                                    This map shows the property taxes levied on each property in New York City.
+                                </p>
+                                <p>
+                                    Tap on a property to see how much tax it pays per year.
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="nav-property-details" role="tabpanel" aria-labelledby="nav-property-details-tab" tabindex="0">
                         <div class="row">
-                            <div class="col-md-6" id="property-details-drawer">
+                            <div class="col-lg-6" id="property-details-drawer">
                                 <p>Click or tap on a property on the map to view its property tax details.</p>
                             </div>
                         </div>
@@ -79,15 +82,33 @@
                     <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab" tabindex="0">
                         <div class="row">
                             <div class="col-md-6">
-                                <p>This map was created by <a href="https://www.sebthedev.com">Sebastian Hallum Clarke</a>, the author of <a href="https://www.sidewalkchorus.com">Sidewalk Chorus</a>.</p>
+                                <p>
+                                    This map was created by <a rel="author" href="https://www.sebthedev.com">Sebastian Hallum Clarke</a>, the author of <a href="https://www.sidewalkchorus.com">Sidewalk Chorus</a>. Countless experts and politicians have derided New York's unfair property tax system, but getting New York's legislators to act to fix the system first requires public awareness of the problems. This map is an attempt to help New Yorkers learn how their property tax system is failing them.
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    The code that powers this map is available on <a href="https://github.com/sebthedev/NYC-Property-Tax-Map" target="_blank">GitHub</a>.
+                                    All of the data that powers this map is from official City of New York sources. Read mode about <a href="https://github.com/sebthedev/NYC-Property-Tax-Map#about-the-data">the data</a>.
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
             </div>
-            <!-- <div id="property-details-drawer" class="container"></div> -->
+
             <div id="map" class="border"></div>
+            <div id="legend">
+                <div class="text-center">Effective Tax Rate</div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-auto legend-scale-text">0%</div>
+                        <div class="col" id="color-scale"></div>
+                        <div class="col-auto legend-scale-text">6%</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
 
