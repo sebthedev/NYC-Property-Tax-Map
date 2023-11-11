@@ -1,5 +1,5 @@
 # NYC Property Tax Map
-This repository hosts the code to produce the [Sidewalk Chrous](https://wew.sidewalkchorus.com) [New York City Property Tax Map](https://propertytaxmap.sidewalkchorus.com/). It's an interactive map that allows viewers to see the valuation and property tax bills for every piece of land in New York City.
+This repository hosts the code to produce [Sidewalk Chrous](https://wew.sidewalkchorus.com)'s [New York City Property Tax Map](https://propertytaxmap.sidewalkchorus.com/). It's an interactive map that allows viewers to see the valuation and property tax bills for every piece of land in New York City.
 
 This map was created by [Sebastian Hallum Clarke](https://www.sebthedev.com), the author of Sidewalk Chorus.
 
