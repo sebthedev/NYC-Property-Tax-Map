@@ -1,7 +1,9 @@
 # NYC Property Tax Map
-This repository hosts the code to produce [Sidewalk Chrous](https://wew.sidewalkchorus.com)'s [New York City Property Tax Map](https://propertytaxmap.sidewalkchorus.com/). It's an interactive map that allows viewers to see the valuation and property tax bills for every piece of land in New York City.
+This repository hosts the code to produce [Sidewalk Chrous](https://wew.sidewalkchorus.com)'s [New York City Property Tax Map](https://taxmap.sidewalkchorus.com/). It's an interactive map that allows viewers to see the valuation and property tax bills for every piece of land in New York City.
 
 This map was created by [Sebastian Hallum Clarke](https://www.sebthedev.com), the author of Sidewalk Chorus.
+
+![Screenshot of the property tax map website](img/screenshot.png)
 
 ## Why NYC needs a property tax map
 New York's property tax system is unfair. An incredibly complicated set of rules result in different properties paying hugely different effective tax rates. In general, this results in:
@@ -18,7 +20,7 @@ These facts are obscured from most New Yorkers, however. Tax isn't a sexy topic,
 
 This property tax map is an attempt to bring more transparency to New York's proeprty tax system. It reveals how much tax each property is charged, and demonstrates how wildly uneven and regressive our system is.
 
-[Take a look at the map](https://propertytaxmap.sidewalkchorus.com), educate yourself, and then lobby your legislators at the city council, state assembly, and state senate to take action.
+[Take a look at the map](https://taxmap.sidewalkchorus.com), educate yourself, and then lobby your legislators at the city council, state assembly, and state senate to take action.
 
 ## About the data
 ### Generating the data table
