@@ -29,3 +29,6 @@ The NYC Property Tax Map uses data from several data tables published by the Cit
 ADs
 
 https://data.cityofnewyork.us/api/views/qbgu-kv2h/rows.csv?accessType=DOWNLOAD
+
+## Dependencies
+This interactive map uses the [NYC Planning GeoSearch API](https://geosearch.planninglabs.nyc/) to help users to easily search for NYC addresses.

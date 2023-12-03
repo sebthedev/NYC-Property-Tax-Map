@@ -71,7 +71,7 @@ async function initMap () {
   datasetLayer = map.getDatasetFeatureLayer(datasetId)
 
   // Determine the style of each point in the dataset using the setOnMapPropertyStyle function
-  datasetLayer.style = setOnMapPropertyStyle
+  applyStylesToMap()
 
   // Register the function to update the pane showing property details upon clicking on a property on the map
   datasetLayer.addListener('click', handlePropertyClickOnMap)
@@ -97,14 +97,14 @@ async function initMap () {
 const updateUrlHash = function () {
 // Get the map position
   const center = map.getCenter()
-  const zoom = map.getZoom()
+  const zoom = map.getZoom().toFixed(2)
 
   let bblHashComponent = ''
   if (selectedPropertyBBL !== null) {
     bblHashComponent = `&bbl=${selectedPropertyBBL}`
   }
   // Update the URL hash with the new center
-  window.location.hash = `#!lat=${center.lat()}&lng=${center.lng()}&zoom=${zoom}` + bblHashComponent
+  window.location.hash = `#!lat=${center.lat().toFixed(5)}&lng=${center.lng().toFixed(5)}&zoom=${zoom}` + bblHashComponent
 }
 
 // When the zoom level changes significantly, re-compute the property styles so that we can resize the property bubbles to be larger at deeper zoom levels
@@ -117,16 +117,56 @@ const handleZoomChanged = function (e) {
   if (currentZoomLevel > zoomLevelAtWhichStylesMostRecentlyApplied + zoomLevelDeltaAtWhichToUpdateStyles || currentZoomLevel < zoomLevelAtWhichStylesMostRecentlyApplied - zoomLevelDeltaAtWhichToUpdateStyles) {
     // Update the tracker of the zoom level at which the styles were most recently updated
     zoomLevelAtWhichStylesMostRecentlyApplied = currentZoomLevel
-    datasetLayer.style = setOnMapPropertyStyle
+    applyStylesToMap()
   }
 }
 
+const applyStylesToMap = function () {
+  datasetLayer.style = setOnMapPropertyStyle
+}
+
+// Handle the deselection of a place
 const handleClickOnMap = function (e) {
   selectedPropertyBBL = null
+  applyStylesToMap()
   const propertyDetailsDrawerHTML = ''
   document.getElementById('nav-home-tab').click()
   document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
   updateUrlHash()
+  document.getElementById('addressSearchBox').blur()
+}
+
+const populatePropertyDetailsPaneContent = function (selectedPropertyDetails) {
+  const effectiveTaxRatePercentileWithinClass = findTaxRatePercentile(selectedPropertyDetails.TaxClass, selectedPropertyDetails.EffectiveTaxRate, effectiveTaxRateQuantiles)
+
+  const propertyDetailsDrawerHTML = `
+  <dl class="row small"><dt class="${propertyDetailsAttributeNameClass}">Address</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">${selectedPropertyDetails.Address}</dd>
+  
+  <dt class="${propertyDetailsAttributeNameClass}">Owner</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">${selectedPropertyDetails.OwnerName}</dd>
+
+  <dt class="${propertyDetailsAttributeNameClass}">Tax Class</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">${taxClassDescriptions[selectedPropertyDetails.TaxClass]} <span class="text-muted">(Class&nbsp;${selectedPropertyDetails.TaxClass})</span></dd>
+
+  <dt class="${propertyDetailsAttributeNameClass}">Market Value</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(selectedPropertyDetails.CurrentMarketTotalValue)}</dd>
+
+  <dt class="${propertyDetailsAttributeNameClass}">Property Tax&nbsp;Bill</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(selectedPropertyDetails.TaxBill)} <span class="text-muted">per year</span></dd>
+
+  <dt class="${propertyDetailsAttributeNameClass}">Effective Tax Rate</dt>
+  <dd class="${propertyDetailsAttributeValueClass}"><span style="color: ${determineColorForEffectiveTaxRate(selectedPropertyDetails.EffectiveTaxRate)};">${formatPercentage(selectedPropertyDetails.EffectiveTaxRate)}</span> <span class="text-muted">of the property's value per year</span></dd>
+
+  <dt class="${propertyDetailsAttributeNameClass}">Tax Rate Comparison</dt>
+  <dd class="${propertyDetailsAttributeValueClass}">This property's tax rate is <span style="color: ${effectiveTaxRatePercentileWithinClass.color};">${effectiveTaxRatePercentileWithinClass.comparitor} than ${Math.round(effectiveTaxRatePercentileWithinClass.comparitorPercentile)}%</span> of taxable NYC class&nbsp;${selectedPropertyDetails.TaxClass} properties</dd>
+
+  <dd class="col">View property on: <a href="${departmentOfFinanceUrlTemplate}${selectedPropertyDetails.BoroughBlockLot}" target="_blank">Department of Finance</a>, <a href="${zolaTemplate}${[selectedPropertyDetails.BoroughBlockLot.substring(0, 1), selectedPropertyDetails.BoroughBlockLot.substring(1, 6), selectedPropertyDetails.BoroughBlockLot.substring(6)].join('/')}">Zoning & Land Use map</a></dd>
+    </dl>
+    `
+
+  document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
+  document.getElementById('nav-property-details-tab').click()
 }
 
 const departmentOfFinanceUrlTemplate = 'https://a836-pts-access.nyc.gov/care/datalets/datalet.aspx?mode=profileall2&UseSearch=no&pin='
@@ -137,53 +177,24 @@ const taxClassDescriptions = {
   3: 'Utilities',
   4: 'Commercial or industrial'
 }
+const propertyDetailsAttributeNameClass = 'col-5 my-1 my-md-2 lh-1'
+const propertyDetailsAttributeValueClass = 'col-7 my-1 my-md-2 lh-1'
 const handlePropertyClickOnMap = function (e) {
   if (e.features) {
     const clickedPropertyAttributes = e.features[0].datasetAttributes
-    console.log(clickedPropertyAttributes)
 
     selectedPropertyBBL = clickedPropertyAttributes.BoroughBlockLot
 
-    const effectiveTaxRatePercentileWithinClass = findTaxRatePercentile(clickedPropertyAttributes.TaxClass, clickedPropertyAttributes.EffectiveTaxRate, effectiveTaxRateQuantiles)
-    console.log(effectiveTaxRatePercentileWithinClass)
-
-    const propertyDetailsAttributeNameClass = 'col-5 my-1 my-md-2 lh-1'
-    const propertyDetailsAttributeValueClass = 'col-7 my-1 my-md-2 lh-1'
-    const propertyDetailsDrawerHTML = `
-    <dl class="row small"><dt class="${propertyDetailsAttributeNameClass}">Address</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.Address}</dd>
-    
-    <dt class="${propertyDetailsAttributeNameClass}">Owner</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${clickedPropertyAttributes.OwnerName}</dd>
-
-    <dt class="${propertyDetailsAttributeNameClass}">Tax Class</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${taxClassDescriptions[clickedPropertyAttributes.TaxClass]} <span class="text-muted">(Class&nbsp;${clickedPropertyAttributes.TaxClass})</span></dd>
-  
-    <dt class="${propertyDetailsAttributeNameClass}">Market Value</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.CurrentMarketTotalValue)}</dd>
-
-    <dt class="${propertyDetailsAttributeNameClass}">Property Tax&nbsp;Bill</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(clickedPropertyAttributes.TaxBill)} <span class="text-muted">per year</span></dd>
-
-    <dt class="${propertyDetailsAttributeNameClass}">Effective Tax Rate</dt>
-    <dd class="${propertyDetailsAttributeValueClass}"><span style="color: ${determineColorForEffectiveTaxRate(clickedPropertyAttributes.EffectiveTaxRate)};">${formatPercentage(clickedPropertyAttributes.EffectiveTaxRate)}</span> <span class="text-muted">of the property's value per year</span></dd>
-
-    <dt class="${propertyDetailsAttributeNameClass}">Tax Rate Comparison</dt>
-    <dd class="${propertyDetailsAttributeValueClass}">This property's tax rate is <span style="color: ${effectiveTaxRatePercentileWithinClass.color};">${effectiveTaxRatePercentileWithinClass.comparitor} than ${Math.round(effectiveTaxRatePercentileWithinClass.comparitorPercentile)}%</span> of taxable NYC class&nbsp;${clickedPropertyAttributes.TaxClass} properties</dd>
-
-    <dd class="col">View property on: <a href="${departmentOfFinanceUrlTemplate}${clickedPropertyAttributes.BoroughBlockLot}" target="_blank">Department of Finance</a>, <a href="${zolaTemplate}${[clickedPropertyAttributes.BoroughBlockLot.substring(0, 1), clickedPropertyAttributes.BoroughBlockLot.substring(1, 6), clickedPropertyAttributes.BoroughBlockLot.substring(6)].join('/')}">Zoning & Land Use map</a></dd>
-      </dl>
-      `
-
-    document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
-    document.getElementById('nav-property-details-tab').click()
+    applyStylesToMap()
 
     updateUrlHash()
   }
 }
 
-const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+// const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
 function setOnMapPropertyStyle (params) {
+  const thisPropertyIsSelected = (params.feature.datasetAttributes.BoroughBlockLot === selectedPropertyBBL)
+
   // Determine the right color for this property, based on its effective tax rate
   const thisPropertyColor = determineColorForEffectiveTaxRate(params.feature.datasetAttributes.EffectiveTaxRate)
 
@@ -206,13 +217,21 @@ function setOnMapPropertyStyle (params) {
     pointRadius = 15
   }
   // if (isTouchscreen) { pointRadius = pointRadius * 2 }
+  let fillOpacity = 0.3
+
+  // Perform special styling and populate property details pane if this property is selected
+  if (thisPropertyIsSelected) {
+    populatePropertyDetailsPaneContent(params.feature.datasetAttributes)
+    pointRadius = pointRadius * 2
+    fillOpacity = 0.8
+  }
 
   return {
     strokeColor: thisPropertyColor,
     strokeWeight: 2,
     strokeOpacity: 1,
     fillColor: thisPropertyColor,
-    fillOpacity: 0.3,
+    fillOpacity,
     pointRadius
   }
 }
@@ -257,7 +276,6 @@ const calculateLinearGradientForColorScale = function () {
   }
 
   const cssGradient = createGradient(effectiveTaxRateToColorMap, effectiveTopEndOfScale)
-  console.log(cssGradient)
   const element = document.getElementById('color-scale')
   element.style.background = cssGradient
 }
@@ -340,3 +358,123 @@ function findTaxRatePercentile (taxClass, effectiveTaxRate, effectiveTaxRateQuan
     }
   }
 }
+
+// Autocomplete
+
+const enableInputAutocomplete = function (autocompleteInputElement, arr) {
+  // Start searching when a user inputs into the autocomplete search box
+  autocompleteInputElement.addEventListener('input', function (e) {
+    const queryText = autocompleteInputElement.value
+
+    // Close any already open lists of autocompleted values
+    closeAutocompleteLists()
+
+    // Bail if the query string is absent
+    if (!queryText) {
+      return false
+    }
+
+    fetchLocationsForAddressQuery(queryText)
+  })
+
+  const geoSearchAutoCompleteURLBase = 'https://geosearch.planninglabs.nyc/v2/autocomplete'
+  const fetchLocationsForAddressQuery = function (addressQuery) {
+    // Bail if the query is too short to return meaningful results
+    if (addressQuery.trim().length < 3) {
+      return
+    }
+
+    // Initialize the base URL
+    const geoSearchAutoCompleteURL = new URL(geoSearchAutoCompleteURLBase)
+
+    // Add the address query parameter
+    const params = new URLSearchParams()
+    params.append('text', addressQuery)
+
+    // Attempt to give the GeoSearch query a focus of the current map center
+    try {
+      const currentMapCenter = map.getCenter()
+
+      params.append('focus.point.lat', currentMapCenter.lat())
+      params.append('focus.point.lon', currentMapCenter.lng())
+    } catch (error) {
+      // Fail silently
+    }
+
+    // Append the query parameters to the URL
+    geoSearchAutoCompleteURL.search = params.toString()
+
+    // Request the autocompletion from the GeoSearch API
+    fetch(geoSearchAutoCompleteURL.href)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.json()
+      })
+      .then(data => {
+        const dataQuery = data.geocoding.query.text
+        const autocompleteInputElementValue = autocompleteInputElement.value
+
+        // Bail if the query in this data response doesn't match the current text in the search box
+        if (dataQuery.trim() !== autocompleteInputElementValue.trim()) {
+          return
+        }
+
+        /* create a DIV element that will contain the items (values): */
+        const autocompleteListDiv = document.createElement('DIV')
+        autocompleteListDiv.setAttribute('id', 'autocomplete-list')
+        autocompleteListDiv.setAttribute('class', 'autocomplete-items')
+        /* append the DIV element as a child of the autocomplete container: */
+        autocompleteInputElement.parentNode.appendChild(autocompleteListDiv)
+
+        // Create the HTML div elements for each search result
+        data.features.forEach(function (item) {
+          const autocompleteListItemDiv = document.createElement('DIV')
+          const visiblePlaceLabel = [item.properties.name, item.properties.neighbourhood, item.properties.borough].join(', ')
+
+          autocompleteListItemDiv.innerHTML = visiblePlaceLabel
+
+          // Take action when this autocomplete item is clicked
+          autocompleteListItemDiv.addEventListener('click', function (e) {
+            autocompleteInputElement.value = '' // visiblePlaceLabel
+
+            selectedPropertyBBL = item.properties.addendum.pad.bbl
+
+            // Create a LatLng object for the new center
+            const newCenter = new window.google.maps.LatLng(item.geometry.coordinates[1], item.geometry.coordinates[0])
+
+            // Set the new center and zoom level simultaneously
+            map.setOptions({
+              center: newCenter,
+              zoom: 17
+            })
+
+            closeAutocompleteLists()
+          })
+          autocompleteListDiv.appendChild(autocompleteListItemDiv)
+        })
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error)
+      })
+  }
+
+  function closeAutocompleteLists (elmnt) {
+    /* close all autocomplete lists in the document,
+    except the one passed as an argument: */
+    const x = document.getElementsByClassName('autocomplete-items')
+    for (let i = 0; i < x.length; i++) {
+      if (elmnt !== x[i] && elmnt !== autocompleteInputElement) {
+        x[i].parentNode.removeChild(x[i])
+      }
+    }
+  }
+  /* execute a function when someone clicks in the document: */
+  document.addEventListener('click', function (e) {
+    closeAutocompleteLists(e.target)
+  })
+}
+
+// Initialize the GeoSearch autocomplete box
+enableInputAutocomplete(document.getElementById('addressSearchBox'))
