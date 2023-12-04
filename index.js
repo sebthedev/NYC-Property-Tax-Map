@@ -36,7 +36,8 @@ function getMapParametersFromHash () {
     return {
       lat: params.lat || defaults.lat,
       lng: params.lng || defaults.lng,
-      zoom: params.zoom || defaults.zoom
+      zoom: params.zoom || defaults.zoom,
+      selectedPropertyBBL: params.bbl || defaults.selectedPropertyBBL
     }
   }
 
@@ -47,6 +48,9 @@ async function initMap () {
   const { Map } = await window.google.maps.importLibrary('maps')
 
   const mapParameters = getMapParametersFromHash()
+
+  selectedPropertyBBL = mapParameters.selectedPropertyBBL
+  console.log('init bbl', selectedPropertyBBL)
 
   // Create the map
   map = new Map(document.getElementById('map'), {
@@ -140,7 +144,8 @@ const populatePropertyDetailsPaneContent = function (selectedPropertyDetails) {
   const effectiveTaxRatePercentileWithinClass = findTaxRatePercentile(selectedPropertyDetails.TaxClass, selectedPropertyDetails.EffectiveTaxRate, effectiveTaxRateQuantiles)
 
   const propertyDetailsDrawerHTML = `
-  <dl class="row small"><dt class="${propertyDetailsAttributeNameClass}">Address</dt>
+  <dl class="row small">
+  <dt class="${propertyDetailsAttributeNameClass}">Address</dt>
   <dd class="${propertyDetailsAttributeValueClass}">${selectedPropertyDetails.Address}</dd>
   
   <dt class="${propertyDetailsAttributeNameClass}">Owner</dt>
@@ -477,4 +482,21 @@ const enableInputAutocomplete = function (autocompleteInputElement, arr) {
 }
 
 // Initialize the GeoSearch autocomplete box
-enableInputAutocomplete(document.getElementById('addressSearchBox'))
+const addressSearchBox = document.getElementById('addressSearchBox')
+const tabContent = document.getElementById('nav-tabContent')
+enableInputAutocomplete(addressSearchBox)
+
+// Add event listeners for autocomplete focus and blur to make things work on mobile
+addressSearchBox.addEventListener('focus', function () {
+  tabContent.classList.add('d-none')
+
+  setTimeout(function () {
+    console.log(1)
+    window.scrollTo(0, 0)
+  }, 100)
+})
+addressSearchBox.addEventListener('blur', function () {
+  setTimeout(function () {
+    tabContent.classList.remove('d-none')
+  }, 500)
+})
