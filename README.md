@@ -20,15 +20,20 @@ These facts are obscured from most New Yorkers, however. Tax isn't a sexy topic,
 
 This property tax map is an attempt to bring more transparency to New York's proeprty tax system. It reveals how much tax each property is charged, and demonstrates how wildly uneven and regressive our system is.
 
-[Take a look at the map](https://taxmap.sidewalkchorus.com), educate yourself, and then lobby your legislators at the city council, state assembly, and state senate to take action.
+[View the map](https://taxmap.sidewalkchorus.com), educate yourself, and then lobby your legislators at the city council, state assembly, and state senate to take action.
 
 ## About the data
 ### Generating the data table
 The NYC Property Tax Map uses data from several data tables published by the City of New York. Generating the data table that powers the map requires joining these tables together.
 
-ADs
+The data sources are:
+* [Property Valuation and Assessment Data Tax Classes 1,2,3,4](https://data.cityofnewyork.us/City-Government/Property-Valuation-and-Assessment-Data-Tax-Classes/8y4t-faws) table, published by the NYC Department of Finance on the NYC Open Data portal
+* [Primary Land Use Tax Lot Output (PLUTO)](https://data.cityofnewyork.us/City-Government/Primary-Land-Use-Tax-Lot-Output-PLUTO-/64uk-42ks) table, published by the NYC Department of City Planning on the NYC Open Data portal
+* [DOF Property Abatement Detail](https://data.cityofnewyork.us/City-Government/DOF-Property-Abatement-Detail/rgyu-ii48) table, published by the NYC Department of Finance on the NYC Open Data portal
+* [State Assembly District](https://data.cityofnewyork.us/dataset/nyad/qbgu-kv2h) shapefile, published by on the NYC Open Data portal
+* [Property Tax Rates by Tax Class](https://data.cityofnewyork.us/City-Government/Property-Tax-Rates-by-Tax-Class/7zb8-7bpk) table, published by the NYC Department of Finance on the NYC Open Data portal
 
-https://data.cityofnewyork.us/api/views/qbgu-kv2h/rows.csv?accessType=DOWNLOAD
+To join these data tables, I use the [dataJoin.sql script](./dataJoin.sql).
 
 ## Dependencies
 This interactive map uses the [NYC Planning GeoSearch API](https://geosearch.planninglabs.nyc/) to help users to easily search for NYC addresses.
