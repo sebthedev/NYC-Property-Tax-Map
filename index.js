@@ -17,8 +17,8 @@ let zoomLevelAtWhichStylesMostRecentlyApplied = null
 // Determine the map's starting position and zoom level from the URL's hash, or fallback to a default location and zoom level
 function getMapParametersFromHash () {
   const defaults = {
-    lat: 40.76882764497733,
-    lng: -73.96813178859476,
+    lat: 40.7484,
+    lng: -73.9857,
     zoom: 16,
     selectedPropertyBBL: null
   }
@@ -30,6 +30,9 @@ function getMapParametersFromHash () {
     let match
 
     while ((match = regExp.exec(hash)) !== null) {
+      if (match[1].charAt(0) === '!') {
+        match[1] = match[1].substring(1)
+      }
       params[match[1]] = parseFloat(match[2])
     }
 
@@ -50,7 +53,7 @@ async function initMap () {
   const mapParameters = getMapParametersFromHash()
 
   selectedPropertyBBL = mapParameters.selectedPropertyBBL
-  console.log('init bbl', selectedPropertyBBL)
+  console.log('init parameters', mapParameters)
 
   // Create the map
   map = new Map(document.getElementById('map'), {
@@ -144,6 +147,7 @@ const populatePropertyDetailsPaneContent = function (selectedPropertyDetails) {
   const effectiveTaxRatePercentileWithinClass = findTaxRatePercentile(selectedPropertyDetails.TaxClass, selectedPropertyDetails.EffectiveTaxRate, effectiveTaxRateQuantiles)
 
   const propertyDetailsDrawerHTML = `
+  <div class="col-lg-6">
   <dl class="row small">
   <dt class="${propertyDetailsAttributeNameClass}">Address</dt>
   <dd class="${propertyDetailsAttributeValueClass}">${selectedPropertyDetails.Address}</dd>
@@ -155,8 +159,8 @@ const populatePropertyDetailsPaneContent = function (selectedPropertyDetails) {
   <dd class="${propertyDetailsAttributeValueClass}">${taxClassDescriptions[selectedPropertyDetails.TaxClass]} <span class="text-muted">(Class&nbsp;${selectedPropertyDetails.TaxClass})</span></dd>
 
   <dt class="${propertyDetailsAttributeNameClass}">Market Value</dt>
-  <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(selectedPropertyDetails.CurrentMarketTotalValue)}</dd>
-
+  <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(selectedPropertyDetails.CurrentMarketTotalValue)}</dd></dl>
+</div><div class="col-lg-6"><dl class="row small">
   <dt class="${propertyDetailsAttributeNameClass}">Property Tax&nbsp;Bill</dt>
   <dd class="${propertyDetailsAttributeValueClass}">${formatCurrency(selectedPropertyDetails.TaxBill)} <span class="text-muted">per year</span></dd>
 
@@ -166,8 +170,9 @@ const populatePropertyDetailsPaneContent = function (selectedPropertyDetails) {
   <dt class="${propertyDetailsAttributeNameClass}">Tax Rate Comparison</dt>
   <dd class="${propertyDetailsAttributeValueClass}">This property's tax rate is <span style="color: ${effectiveTaxRatePercentileWithinClass.color};">${effectiveTaxRatePercentileWithinClass.comparitor} than ${Math.round(effectiveTaxRatePercentileWithinClass.comparitorPercentile)}%</span> of taxable NYC class&nbsp;${selectedPropertyDetails.TaxClass} properties</dd>
 
-  <dd class="col">View property on: <a href="${departmentOfFinanceUrlTemplate}${selectedPropertyDetails.BoroughBlockLot}" target="_blank">Department of Finance</a>, <a href="${zolaTemplate}${[selectedPropertyDetails.BoroughBlockLot.substring(0, 1), selectedPropertyDetails.BoroughBlockLot.substring(1, 6), selectedPropertyDetails.BoroughBlockLot.substring(6)].join('/')}">Zoning & Land Use map</a></dd>
+  <dd class="col">View property on: <a href="${departmentOfFinanceUrlTemplate}${selectedPropertyDetails.BoroughBlockLot}" target="_blank" title="View property on NYC Department of Finance">DOF</a>, <a href="${zolaTemplate}${[selectedPropertyDetails.BoroughBlockLot.substring(0, 1), selectedPropertyDetails.BoroughBlockLot.substring(1, 6), selectedPropertyDetails.BoroughBlockLot.substring(6)].join('/')}" title="View property on NYC's Zoning & Land Use Map">ZoLa Map</a></dd>
     </dl>
+    </div>
     `
 
   document.getElementById('property-details-drawer').innerHTML = propertyDetailsDrawerHTML
@@ -182,8 +187,8 @@ const taxClassDescriptions = {
   3: 'Utilities',
   4: 'Commercial or industrial'
 }
-const propertyDetailsAttributeNameClass = 'col-5 my-1 my-md-2 lh-1'
-const propertyDetailsAttributeValueClass = 'col-7 my-1 my-md-2 lh-1'
+const propertyDetailsAttributeNameClass = 'col-5 col-md-3 my-1 my-md-2 lh-1'
+const propertyDetailsAttributeValueClass = 'col-7 col-md-9 my-1 my-md-2 lh-1'
 const handlePropertyClickOnMap = function (e) {
   if (e.features) {
     const clickedPropertyAttributes = e.features[0].datasetAttributes
@@ -198,7 +203,11 @@ const handlePropertyClickOnMap = function (e) {
 
 // const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
 function setOnMapPropertyStyle (params) {
-  const thisPropertyIsSelected = (params.feature.datasetAttributes.BoroughBlockLot === selectedPropertyBBL)
+  // console.log(`selectedPropertyBBL is ${selectedPropertyBBL}. This property is ${params.feature.datasetAttributes.BoroughBlockLot}`)
+  const thisPropertyIsSelected = (params.feature.datasetAttributes.BoroughBlockLot === selectedPropertyBBL + '')
+  // console.log(typeof selectedPropertyBBL)
+  // console.log(typeof params.feature.datasetAttributes.BoroughBlockLot)
+  // console.log(params.feature.datasetAttributes)
 
   // Determine the right color for this property, based on its effective tax rate
   const thisPropertyColor = determineColorForEffectiveTaxRate(params.feature.datasetAttributes.EffectiveTaxRate)
@@ -226,6 +235,8 @@ function setOnMapPropertyStyle (params) {
 
   // Perform special styling and populate property details pane if this property is selected
   if (thisPropertyIsSelected) {
+  // if (params.feature.datasetAttributes === '1007390001') {
+    console.log('Found selected property!')
     populatePropertyDetailsPaneContent(params.feature.datasetAttributes)
     pointRadius = pointRadius * 2
     fillOpacity = 0.8
@@ -491,7 +502,6 @@ addressSearchBox.addEventListener('focus', function () {
   tabContent.classList.add('d-none')
 
   setTimeout(function () {
-    console.log(1)
     window.scrollTo(0, 0)
   }, 100)
 })

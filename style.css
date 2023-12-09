@@ -175,3 +175,7 @@ a {
 
 
 /* End autocompelte */
+
+#property-details-drawer>div:nth-child(1)>dl {
+    margin-bottom: 0px;
+}
