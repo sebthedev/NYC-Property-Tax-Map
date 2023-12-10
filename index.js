@@ -53,7 +53,6 @@ async function initMap () {
   const mapParameters = getMapParametersFromHash()
 
   selectedPropertyBBL = mapParameters.selectedPropertyBBL
-  console.log('init parameters', mapParameters)
 
   // Create the map
   map = new Map(document.getElementById('map'), {
@@ -111,7 +110,7 @@ const updateUrlHash = function () {
     bblHashComponent = `&bbl=${selectedPropertyBBL}`
   }
   // Update the URL hash with the new center
-  window.location.hash = `#!lat=${center.lat().toFixed(5)}&lng=${center.lng().toFixed(5)}&zoom=${zoom}` + bblHashComponent
+  changeHashProgrammatically(`#!lat=${center.lat().toFixed(5)}&lng=${center.lng().toFixed(5)}&zoom=${zoom}` + bblHashComponent)
 }
 
 // When the zoom level changes significantly, re-compute the property styles so that we can resize the property bubbles to be larger at deeper zoom levels
@@ -466,6 +465,9 @@ const enableInputAutocomplete = function (autocompleteInputElement, arr) {
               zoom: 17
             })
 
+            // Re-apply the styles to the map to ensure that the POI gets selected and the property details are updated
+            applyStylesToMap()
+
             closeAutocompleteLists()
           })
           autocompleteListDiv.appendChild(autocompleteListItemDiv)
@@ -509,4 +511,44 @@ addressSearchBox.addEventListener('blur', function () {
   setTimeout(function () {
     tabContent.classList.remove('d-none')
   }, 500)
+})
+
+let isProgrammaticHashChange = false
+
+// Function to change hash programmatically
+function changeHashProgrammatically (newHash) {
+  isProgrammaticHashChange = true
+
+  // Change the hash
+  window.location.hash = newHash
+
+  // Reset the flag after a short delay
+  setTimeout(function () {
+    isProgrammaticHashChange = false
+  }, 100) // 100 milliseconds or a suitable delay
+}
+
+// If the user changes the page hash (typically by using their browser's forward/back buttons) then parse the hash and update the map to the correct location, selected property, and zoom level
+window.addEventListener('hashchange', function () {
+  // Ignore programmatic updates to the hash, such as when the map updates the hash to reflect its current location
+  if (isProgrammaticHashChange) {
+    // Ignore programmatic hash changes
+    return
+  }
+
+  const newHashParameters = getMapParametersFromHash()
+
+  selectedPropertyBBL = newHashParameters.selectedPropertyBBL
+
+  // Create a LatLng object for the new center
+  const newCenter = new window.google.maps.LatLng(newHashParameters.lat, newHashParameters.lng)
+
+  // Set the new center and zoom level simultaneously
+  map.setOptions({
+    center: newCenter,
+    zoom: newHashParameters.zoom
+  })
+
+  // Refresh the map styles to update the selected POI and data in the property details pane
+  applyStylesToMap()
 })
