@@ -200,13 +200,9 @@ const handlePropertyClickOnMap = function (e) {
   }
 }
 
-// const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
+const isTouchscreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
 function setOnMapPropertyStyle (params) {
-  // console.log(`selectedPropertyBBL is ${selectedPropertyBBL}. This property is ${params.feature.datasetAttributes.BoroughBlockLot}`)
   const thisPropertyIsSelected = (params.feature.datasetAttributes.BoroughBlockLot === selectedPropertyBBL + '')
-  // console.log(typeof selectedPropertyBBL)
-  // console.log(typeof params.feature.datasetAttributes.BoroughBlockLot)
-  // console.log(params.feature.datasetAttributes)
 
   // Determine the right color for this property, based on its effective tax rate
   const thisPropertyColor = determineColorForEffectiveTaxRate(params.feature.datasetAttributes.EffectiveTaxRate)
@@ -221,15 +217,14 @@ function setOnMapPropertyStyle (params) {
   } else if (currentZoomLevel <= 17) {
     pointRadius = 1.5
   } else if (currentZoomLevel <= 18) {
-    pointRadius = 3
+    pointRadius = 3 + isTouchscreen * 2
   } else if (currentZoomLevel <= 18.5) {
-    pointRadius = 5
+    pointRadius = 5 + isTouchscreen * 2
   } else if (currentZoomLevel <= 19) {
-    pointRadius = 10
+    pointRadius = 10 + isTouchscreen * 2
   } else {
-    pointRadius = 15
+    pointRadius = 15 + isTouchscreen * 2
   }
-  // if (isTouchscreen) { pointRadius = pointRadius * 2 }
   let fillOpacity = 0.3
 
   // Perform special styling and populate property details pane if this property is selected
@@ -495,17 +490,18 @@ const enableInputAutocomplete = function (autocompleteInputElement, arr) {
 // Initialize the GeoSearch autocomplete box
 const addressSearchBox = document.getElementById('addressSearchBox')
 const tabContent = document.getElementById('nav-tabContent')
+let scrollInterval
 enableInputAutocomplete(addressSearchBox)
 
 // Add event listeners for autocomplete focus and blur to make things work on mobile
 addressSearchBox.addEventListener('focus', function () {
   tabContent.classList.add('d-none')
-
-  setTimeout(function () {
+  scrollInterval = setInterval(function () {
     window.scrollTo(0, 0)
   }, 100)
 })
 addressSearchBox.addEventListener('blur', function () {
+  clearInterval(scrollInterval)
   setTimeout(function () {
     tabContent.classList.remove('d-none')
   }, 500)
