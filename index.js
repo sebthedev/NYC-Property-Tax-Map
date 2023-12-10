@@ -17,9 +17,9 @@ let zoomLevelAtWhichStylesMostRecentlyApplied = null
 // Determine the map's starting position and zoom level from the URL's hash, or fallback to a default location and zoom level
 function getMapParametersFromHash () {
   const defaults = {
-    lat: 40.7484,
-    lng: -73.9857,
-    zoom: 16,
+    lat: 40.76114,
+    lng: -73.95083,
+    zoom: 14.5,
     selectedPropertyBBL: null
   }
 
@@ -234,8 +234,6 @@ function setOnMapPropertyStyle (params) {
 
   // Perform special styling and populate property details pane if this property is selected
   if (thisPropertyIsSelected) {
-  // if (params.feature.datasetAttributes === '1007390001') {
-    console.log('Found selected property!')
     populatePropertyDetailsPaneContent(params.feature.datasetAttributes)
     pointRadius = pointRadius * 2
     fillOpacity = 0.8
