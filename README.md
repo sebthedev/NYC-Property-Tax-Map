@@ -37,3 +37,5 @@ To join these data tables, I use the [dataJoin.sql script](./dataJoin.sql).
 
 ## Dependencies
 This interactive map uses the [NYC Planning GeoSearch API](https://geosearch.planninglabs.nyc/) to help users to easily search for NYC addresses.
+
+This interactive map is built on the Google Maps Platform's [Maps Javascript](https://developers.google.com/maps/documentation/javascript/) and [Datasets](https://developers.google.com/maps/documentation/datasets) APIs.
