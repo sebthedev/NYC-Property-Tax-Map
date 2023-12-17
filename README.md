@@ -41,7 +41,9 @@ This interactive map uses the [NYC Planning GeoSearch API](https://geosearch.pla
 This interactive map is built on the Google Maps Platform's [Maps Javascript](https://developers.google.com/maps/documentation/javascript/) and [Datasets](https://developers.google.com/maps/documentation/datasets) APIs.
 
 ## License
-The NYC Property Tax Map is the work of Sebastian Hallum Clarke, building on top of data published by the City of New York. You are at liberty to make use of the map and inspect the code that powers the map. For any reproduction of the code, please contact [Sebastian](https://www.sebthedev.com) first.
+The NYC Property Tax Map is the work of Sebastian Hallum Clarke, building on top of data published by the City of New York. You are at liberty to make use of the map and inspect the code that powers the map for educational and civic purposes. For any reproduction of the code, please contact [Sebastian](https://www.sebthedev.com) first.
+
+The Google Maps API key embedded in the project is restricted to use on `*.sidewalkchorus.com`, `http://localhost/`, and `http://127.0.0.1/`; for use of the map and its dataset on any other hosts, please contact Sebastian.
 
 Disclaimer: While utmost care has been taken to ensure data accuracy, ultimately users of the map are responsible for double-checking information accurace before relying on any of the data for other purposes.
 
