@@ -18,7 +18,7 @@ This is bad for New York because:
 
 These facts are obscured from most New Yorkers, however. Tax isn't a sexy topic, and many New Yorkers never even recieve a property tax bill because their home's payments are handled by a landlord, co-op association, or mortgage lender. 
 
-This property tax map is an attempt to bring more transparency to New York's proeprty tax system. It reveals how much tax each property is charged, and demonstrates how wildly uneven and regressive our system is.
+This property tax map is an attempt to bring more transparency to New York's property tax system. It reveals how much tax each property is charged, and demonstrates how wildly uneven and regressive our system is.
 
 [View the map](https://taxmap.sidewalkchorus.com), educate yourself, and then lobby your legislators at the city council, state assembly, and state senate to take action.
 
