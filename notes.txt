@@ -27,3 +27,7 @@ https://data.cityofnewyork.us/resource/64uk-42ks.csv?$query=SELECT%20bbl%2C%20la
 https://data.cityofnewyork.us/resource/rgyu-ii48.csv?$query=SELECT%20%2A%20WHERE%20taxyr%20%3D%20%222024%22%20LIMIT%2010000000000
 
 SELECT * WHERE taxyr = "2024" LIMIT 10000000000
+
+
+#### Export dataset to cloud storage bucket
+bq extract --destination_format=CSV --field_delimiter="," --print_header=true sidewalk-chorus:propertytaxmap.EstimatedTaxBills gs://sidewalk-chorus/EstimatedTaxBills20251027.csv
