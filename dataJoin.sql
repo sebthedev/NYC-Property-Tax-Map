@@ -1,12 +1,13 @@
 CREATE OR REPLACE TABLE
-  propertytaxmap.EstimatedTaxBills AS
+  propertytaxmap.EstimatedTaxBills OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 56 DAY)  -- 8 weeks
+    ) AS
 WITH
   assembly_districts AS ( -- Assembly district boundaries and numbers
   SELECT
-    AssemDist AS AssemblyDistrictNumber,
+    assembly_district AS AssemblyDistrictNumber,
     ST_GEOGFROMTEXT(the_geom) AS AssemblyDistrictGeometry
   FROM
-    `sidewalk-chorus.propertytaxmap.NYC_Assembly_Districts`),
+    `sidewalk-chorus.propertytaxmap.ASSEMBLY_DISTRICTS`),
   tax_rates_table AS ( -- Synthetic table for the tax rates
   SELECT
     1 AS TaxClass,
@@ -28,7 +29,7 @@ WITH
     CAST(parid AS STRING) AS BoroughBlockLot,
     SUM(appliedabt) AS SumOfAppliedAbatements
   FROM
-    `sidewalk-chorus.propertytaxmap.Abatements`
+    `sidewalk-chorus.propertytaxmap.ABATEMENTS`
   WHERE
     period = "2Q"
   GROUP BY
@@ -45,7 +46,7 @@ WITH
     pvad.curtxbtot AS CurrentTaxableValue,
     pvad.curtxbextot AS CurrentExemptionValue
   FROM
-    `sidewalk-chorus.propertytaxmap.PVAD_2023-11-10_3` AS pvad),
+    `sidewalk-chorus.propertytaxmap.PVAD` AS pvad),
   pluto_computed AS (
   SELECT
     CAST(pluto.bbl AS STRING) AS BoroughBlockLot,
@@ -60,17 +61,16 @@ WITH
     ST_GEOGPOINT(pluto.longitude, pluto.latitude) AS GeoGPoint,
     pluto.yearbuilt AS YearBuilt,
     pluto.unitsres AS ResidentialUnits,
-    CONCAT(LEFT(CAST(pluto.bbl AS STRING), 1), FORMAT('%05d', pluto.condono)) AS CondoNumber -- PLUTO has a per-borough condo number field. We need to combine it with the borocode (first digit of BBL to determine the property's cross-NYC condo number)
+    CONCAT(LEFT(CAST(pluto.bbl AS STRING), 1), pluto.condono) AS CondoNumber -- PLUTO has a per-borough condo number field. We need to combine it with the borocode (first digit of BBL to determine the property's cross-NYC condo number)
   FROM
-    `sidewalk-chorus.propertytaxmap.PLUTO_2023-11-10` AS pluto),
+    `sidewalk-chorus.propertytaxmap.PLUTO` AS pluto),
   computed_data AS (
   SELECT
   IF
     (pvad_computed.CondoNumber IS NOT NULL, pvad_computed.CondoNumber, pvad_computed.BoroughBlockLot) AS PropertyGroupKey,
     MAX(CASE
         WHEN pvad_computed.IsCondoUnit = FALSE THEN pvad_computed.BoroughBlockLot
-      ELSE
-      NULL
+        ELSE NULL
     END
       ) AS BoroughBlockLot,
     STRING_AGG(pvad_computed.BoroughBlockLot, "|"
