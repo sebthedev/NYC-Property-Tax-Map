@@ -7,7 +7,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
         <link rel="stylesheet" type="text/css" href="./style.css" />
         <script type="module" src="./index.js"></script>
@@ -26,12 +27,16 @@
         <meta name="theme-color" content="#f5f5f5">
 
         <meta property="og:title" content="NYC Property Tax Map" />
-        <meta property="og:description" content="New York City's property tax system is unfair. This map visualizes exactly how much tax each property pays." />
+        <meta property="og:description"
+            content="New York City's property tax system is unfair. This map visualizes exactly how much tax each property pays." />
         <meta property="og:image" content="./img/map.png" />
         <meta property="og:url" content="https://taxmap.sidewalkchorus.com/" />
-        <meta name="description" content="New York City's property tax system is unfair. This map visualizes exactly how much tax each property pays.">
+        <meta name="description"
+            content="New York City's property tax system is unfair. This map visualizes exactly how much tax each property pays.">
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Sidewalk Chorus" />
+        <meta property="article:published_time" content="2023-11-10T11:46:20+02:00">
+        <meta property="article:modified_time" content="2025-10-27T18:47:59+01:00">
 
     </head>
     <!-- Google tag (gtag.js) -->
@@ -52,7 +57,8 @@
                 <div class="row align-items-center p-1 py-md-3 px-md-2">
                     <!-- Logo on the far left -->
                     <div class="col-2 col-md-3">
-                        <a href="https://www.sidewalkchorus.com"><img id="logo" src="./img/Liberty.jpeg" alt="Liberty" class="img-fluid"></a>
+                        <a href="https://www.sidewalkchorus.com"><img id="logo" src="./img/Liberty.jpeg" alt="Liberty"
+                                class="img-fluid"></a>
                     </div>
                     <!-- Centered page title -->
                     <div class="col-10 col-md-6 text-md-center">
@@ -66,44 +72,74 @@
             <div class="container">
                 <nav>
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Home</button>
-                        <button class="nav-link" id="nav-property-details-tab" data-bs-toggle="tab" data-bs-target="#nav-property-details" type="button" role="tab" aria-controls="nav-property-details" aria-selected="false">Property Details</button>
-                        <button class="nav-link" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about" type="button" role="tab" aria-controls="nav-about" aria-selected="false">About</button>
+                        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home"
+                            aria-selected="true">Home</button>
+                        <button class="nav-link" id="nav-property-details-tab" data-bs-toggle="tab"
+                            data-bs-target="#nav-property-details" type="button" role="tab"
+                            aria-controls="nav-property-details" aria-selected="false">Property Details</button>
+                        <button class="nav-link" id="nav-about-tab" data-bs-toggle="tab" data-bs-target="#nav-about"
+                            type="button" role="tab" aria-controls="nav-about" aria-selected="false">About</button>
                     </div>
                 </nav>
                 <div class="tab-content pt-2 d-md-block" id="nav-tabContent">
-                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab"
+                        tabindex="0">
                         <div class="row small">
                             <div class="col-md-6">
                                 <p>
-                                    <b>This map visualizes New York City's property taxes.</b> Each dot is a property, color-coded based on its effective tax rate. <span class="d-inline d-md-none">Search for an addresss in the box below or tap on a property on the map to view its tax bill.</span>
+                                    <b>This map visualizes New York City's property taxes.</b> Each dot is a property,
+                                    color-coded based on its effective tax rate. <span class="d-inline d-md-none">Search
+                                        for an addresss in the box below or tap on a property on the map to view its tax
+                                        bill.</span>
                                 </p>
                                 <p class="d-none d-md-block">
-                                    Search for an addresss in the box below or tap on a property on the map to view its tax bill.
+                                    Search for an addresss in the box below or tap on a property on the map to view its
+                                    tax bill.
                                 </p>
                             </div>
                             <div class="col-md-6">
                                 <p>
-                                    <b>New York's property tax system is unfair.</b> Similar properties are often taxed at wildly different rates. Millionaires' mansions are frequently taxed at lower rates than working-class apartments. <span class="d-inline d-md-none">Read more on <i>Sidewalk&nbsp;Chorus</i> about <a href="https://www.sidewalkchorus.com/p/property-tax" target="_blank">New York's flawed property tax system</a> and <a href="https://www.sidewalkchorus.com/p/property-tax-reform" target="_blank">how we can reform it</a>.</span>
+                                    <b>New York's property tax system is unfair.</b> Similar properties are often taxed
+                                    at wildly different rates. Millionaires' mansions are frequently taxed at lower
+                                    rates than working-class apartments. <span class="d-inline d-md-none">Read more on
+                                        <i>Sidewalk&nbsp;Chorus</i> about <a
+                                            href="https://www.sidewalkchorus.com/p/property-tax" target="_blank">New
+                                            York's flawed property tax system</a> and <a
+                                            href="https://www.sidewalkchorus.com/p/property-tax-reform"
+                                            target="_blank">how we can reform it</a>.</span>
                                 </p>
                                 <p class="d-none d-md-block">
-                                    Read more on <i>Sidewalk&nbsp;Chorus</i> about <a href="https://www.sidewalkchorus.com/p/property-tax" target="_blank">New York's flawed property tax system</a> and <a href="https://www.sidewalkchorus.com/p/property-tax-reform" target="_blank">how we can reform it</a>.
+                                    Read more on <i>Sidewalk&nbsp;Chorus</i> about <a
+                                        href="https://www.sidewalkchorus.com/p/property-tax" target="_blank">New York's
+                                        flawed property tax system</a> and <a
+                                        href="https://www.sidewalkchorus.com/p/property-tax-reform" target="_blank">how
+                                        we can reform it</a>.
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-property-details" role="tabpanel" aria-labelledby="nav-property-details-tab" tabindex="0">
+                    <div class="tab-pane fade" id="nav-property-details" role="tabpanel"
+                        aria-labelledby="nav-property-details-tab" tabindex="0">
                         <div class="row" id="property-details-drawer">
 
-                            <p>Search for an addresss in the box below or tap on a property on the map to view its tax bill.</p>
+                            <p>Search for an addresss in the box below or tap on a property on the map to view its tax
+                                bill.</p>
 
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab" tabindex="0">
+                    <div class="tab-pane fade" id="nav-about" role="tabpanel" aria-labelledby="nav-about-tab"
+                        tabindex="0">
                         <div class="row small">
                             <div class="col-md-6">
                                 <p>
-                                    This map was created by <a rel="author" href="https://www.sebthedev.com" target="_blank">Sebastian Hallum Clarke</a>, the author of <a href="https://www.sidewalkchorus.com" target="_blank">Sidewalk Chorus</a>. Countless experts and politicians have derided New York's unfair property tax system, but getting New York's legislators to act to fix the system first requires public awareness of the problems. This map is an attempt to help New Yorkers learn how their property tax system is failing them.
+                                    This map was created by <a rel="author" href="https://www.sebthedev.com"
+                                        target="_blank">Sebastian Hallum Clarke</a>, the author of <a
+                                        href="https://www.sidewalkchorus.com" target="_blank">Sidewalk Chorus</a>.
+                                    Countless experts and politicians have derided New York's unfair property tax
+                                    system, but getting New York's legislators to act to fix the system first requires
+                                    public awareness of the problems. This map is an attempt to help New Yorkers learn
+                                    how their property tax system is failing them.
                                 </p>
                             </div>
                             <div class="col-md-6">
@@ -125,7 +161,8 @@
             <div id="autocomplete-container">
                 <div class="container">
                     <div class="autocomplete" style="width:100%;">
-                        <input id="addressSearchBox" type="search" name="addressSearchBox" placeholder="🔍 Search for a New York City address" autocomplete="off" spellcheck="false">
+                        <input id="addressSearchBox" type="search" name="addressSearchBox"
+                            placeholder="🔍 Search for a New York City address" autocomplete="off" spellcheck="false">
                     </div>
                 </div>
             </div>
@@ -152,7 +189,9 @@
             });
         </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"></script>
     </body>
 
 </html>
