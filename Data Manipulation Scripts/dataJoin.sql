@@ -2,13 +2,15 @@ CREATE OR REPLACE TABLE
   propertytaxmap.EstimatedTaxBills OPTIONS ( expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 56 DAY)  -- 8 weeks
     ) AS
 WITH
-  assembly_districts AS ( -- Assembly district boundaries and numbers
+  -- Assembly district boundaries and numbers
+  assembly_districts AS (
   SELECT
     assembly_district AS AssemblyDistrictNumber,
     ST_GEOGFROMTEXT(the_geom) AS AssemblyDistrictGeometry
   FROM
     `sidewalk-chorus.propertytaxmap.ASSEMBLY_DISTRICTS`),
-  tax_rates_table AS ( -- Synthetic table for the tax rates
+  -- Synthetic table for the tax rates
+  tax_rates_table AS (
   SELECT
     1 AS TaxClass,
     20.31 / 100 AS TaxRate
@@ -24,7 +26,20 @@ WITH
   SELECT
     4,
     10.65 / 100 ),
-  abatements_computed AS ( -- Aggregation of abatements for each property
+  -- Cleanup sales data
+  sales_tidied AS (
+  SELECT
+    CAST(bbl AS STRING) AS bbl,
+    CAST(sale_price_adj_se AS FLOAT64) AS most_recent_sale_price_in_current_dollars,
+    sale_date,
+    sale_month,
+    sale_price
+  FROM
+    `sidewalk-chorus.propertytaxmap.PROPERTY_SALES_ADJ_SE`
+  QUALIFY
+    ROW_NUMBER() OVER (PARTITION BY bbl ORDER BY sale_date DESC NULLS LAST , sale_price DESC NULLS LAST ) = 1 ),
+  -- Aggregation of tax abatements for each property
+  abatements_computed AS (
   SELECT
     CAST(parid AS STRING) AS BoroughBlockLot,
     SUM(appliedabt) AS SumOfAppliedAbatements
@@ -34,6 +49,7 @@ WITH
     period = "2Q"
   GROUP BY
     parid),
+  -- Extract details on property values and assessments
   pvad_computed AS (
   SELECT
     CAST(pvad.parid AS STRING) AS BoroughBlockLot,
@@ -47,6 +63,7 @@ WITH
     pvad.curtxbextot AS CurrentExemptionValue
   FROM
     `sidewalk-chorus.propertytaxmap.PVAD` AS pvad),
+  -- Extract details on the characteristics of the property
   pluto_computed AS (
   SELECT
     CAST(pluto.bbl AS STRING) AS BoroughBlockLot,
@@ -80,10 +97,10 @@ WITH
     ANY_VALUE(assembly_districts.AssemblyDistrictNumber) AS AssemblyDistrict,
     ANY_VALUE(CouncilDistrict) AS CouncilDistrict,
     ANY_VALUE(CommunityDistrict) AS CommunityDistrict,
-    ANY_VALUE(Latitude) AS Latitude,
-    ANY_VALUE(Longitude) AS Longitude,
+    ANY_VALUE(pluto_computed.Latitude) AS Latitude,
+    ANY_VALUE(pluto_computed.Longitude) AS Longitude,
     ANY_VALUE(YearBuilt) AS YearBuilt,
-    ANY_VALUE(Address) AS Address,
+    ANY_VALUE(pluto_computed.Address) AS Address,
     ANY_VALUE(OwnerName) AS OwnerName,
     ANY_VALUE(pvad_computed.TaxClass) AS TaxClass,
     ANY_VALUE(pvad_computed.CondoNumber IS NOT NULL) AS IsCondoProperty,
@@ -93,6 +110,10 @@ WITH
     SUM(abatements_computed.SumOfAppliedAbatements) AS SumOfAppliedAbatements,
     ROUND(SUM((pvad_computed.CurrentTaxableValue - pvad_computed.CurrentExemptionValue) * tax_rates_table.TaxRate - IFNULL(abatements_computed.SumOfAppliedAbatements, 0)), 2) AS TaxBill,
     ROUND(SAFE_DIVIDE(SUM((pvad_computed.CurrentTaxableValue - pvad_computed.CurrentExemptionValue) * tax_rates_table.TaxRate - IFNULL(abatements_computed.SumOfAppliedAbatements, 0)), SUM(pvad_computed.CurrentMarketTotalValue)),8) AS EffectiveTaxRate,
+    ANY_VALUE(sales_tidied.most_recent_sale_price_in_current_dollars) AS MostRecentSalePriceInCurrentDollars,
+    ANY_VALUE(sales_tidied.sale_date) AS MostRecentSaleDate,
+    ANY_VALUE(sales_tidied.sale_month) AS MostRecentSaleMonth,
+    ANY_VALUE(sales_tidied.sale_price) AS MostRecentSalePrice,
   FROM
     pvad_computed
   LEFT JOIN
@@ -112,6 +133,10 @@ WITH
     tax_rates_table
   ON
     pvad_computed.TaxClass = tax_rates_table.TaxClass
+  LEFT JOIN
+    sales_tidied
+  ON
+    pvad_computed.BoroughBlockLot = sales_tidied.bbl
   GROUP BY
     PropertyGroupKey )
 SELECT
@@ -119,5 +144,5 @@ SELECT
 FROM
   computed_data
 WHERE
-  Longitude IS NOT NULL
-  AND Longitude IS NOT NULL;
+  computed_data.Longitude IS NOT NULL
+  AND computed_data.Longitude IS NOT NULL;
