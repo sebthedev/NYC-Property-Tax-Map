@@ -31,3 +31,11 @@ SELECT * WHERE taxyr = "2024" LIMIT 10000000000
 
 #### Export dataset to cloud storage bucket
 bq extract --destination_format=CSV --field_delimiter="," --print_header=true sidewalk-chorus:propertytaxmap.EstimatedTaxBills gs://sidewalk-chorus/EstimatedTaxBills20251027.csv
+
+
+// Sales data
+Historical data (2015-2024) https://data.cityofnewyork.us/City-Government/NYC-Citywide-Annualized-Calendar-Sales-Update/w2pb-icbu/about_data
+
+current year: https://data.cityofnewyork.us/dataset/NYC-Citywide-Rolling-Calendar-Sales/usep-8jbt/about_data
+
+ Acris data (sales register) https://data.cityofnewyork.us/browse?q=acris&sortBy=relevance&pageSize=20&page=1
